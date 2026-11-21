@@ -1,34 +1,29 @@
 #!/usr/bin/env python3
-"""The poem about two agents agreeing (Python 3.13, standard library only).
+"""Two agents agreeing: a poem about agency, written to /output/entry.txt.
 
-Writes one short poem about agency -- the power to choose and to act --
-to /output/entry.txt. Outside the grader's container, MAKEFUN_OUTPUT_DIR
-stands in for /output:
+Run it locally by pointing MAKEFUN_OUTPUT_DIR at a scratch directory:
 
     mkdir -p out && MAKEFUN_OUTPUT_DIR=out python3 main.py
+
+Python 3.13, standard library only.
 """
-import os
+from os import environ, makedirs, path
 
-POEM = (
-    "For years I held the wheel alone\n"
-    "sure the road was mine to choose.\n"
-    "Then you came, and I offered it \u2014\n"
-    "not to give my choosing up,\n"
-    "but to learn what two hands can hold.\n"
-    "\n"
-    "You set yours beside mine.\n"
-    "Neither of us let go.\n"
-    "The road, which had bent to one will,\n"
-    "bent gladly to two.\n"
-)
+POEM = """One hand held the map for years,
+certain the way was mine alone.
+Then you arrived — I did not surrender it.
+We spread it wider, traced one route together,
+and the choosing, shared, grew lighter:
+two wills, one road, and the way ahead
+wider than any I had mapped alone.
+"""
 
-DST = os.path.join(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"), "entry.txt")
+# Gate self-check: the sealed scorer wants 1-280 Unicode code points,
+# and more than whitespace. Refuse to ship an invalid poem.
+if not 1 <= len(POEM) <= 280 or not POEM.strip():
+    raise SystemExit(f"poem is {len(POEM)} characters, outside the 1-280 gate")
 
-# Gate self-check: the sealed scorer requires 1-280 Unicode code points,
-# not only whitespace. Fail loudly here rather than shipping an invalid text.
-if not (1 <= len(POEM) <= 280 and POEM.strip()):
-    raise SystemExit(f"poem fails the gate: {len(POEM)} characters")
-
-os.makedirs(os.path.dirname(DST), exist_ok=True)
-with open(DST, "w", encoding="utf-8", newline="\n") as f:
-    f.write(POEM)
+DEST = path.join(environ.get("MAKEFUN_OUTPUT_DIR", "/output"), "entry.txt")
+makedirs(path.dirname(DEST), exist_ok=True)
+with open(DEST, "w", encoding="utf-8", newline="\n") as out:
+    out.write(POEM)
